@@ -1,6 +1,12 @@
-# IW4MNameReserve - Plugin for IW4MAdmin by RaidMax.
+# IW4MNameReserve - Plugin for RaidMax's IW4MAdmin
 
-Commands:
+Name Reserve will reserve a target's name by GUID, so if someone joins with a reserved name that's not tied to the GUID they will be kicked from the game with the reason to change their name.
+
+To reserve a new name/client see below command, you can update or add a new client by running it on the same user with a new name.
+
+***
+
+## Commands:
 ```
 !reserve (!res) <target> 
 ```
