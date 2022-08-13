@@ -16,7 +16,7 @@ public class Plugin : IPlugin
                 "ReservedClientsSettings");
     }
 
-    public readonly IConfigurationHandler<ReservedClientsConfiguration> ConfigurationHandler;
+    private readonly IConfigurationHandler<ReservedClientsConfiguration> ConfigurationHandler;
     public static List<ReservedClientsModel> ReservedClientsList;
     public const int ConfigurationVersion = 1;
 

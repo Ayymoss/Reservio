@@ -22,12 +22,12 @@ public class ReservedClientsConfiguration : IBaseConfiguration
         new ReservedClientsModel
         {
             Guid = "0001110001110001",
-            Names = new List<string> {"ExampleOtherName", "ExampleOtherName2"}
+            Names = new List<string> {"ExampleOtherName1", "ExampleOtherName2"}
         },
         new ReservedClientsModel
         {
             Guid = "0001110001110002",
-            Names = new List<string> {"ExampleOtherName"}
+            Names = new List<string> {"AnotherExampleName"}
         }
     };
 
