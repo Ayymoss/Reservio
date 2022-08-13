@@ -12,10 +12,12 @@ public class Plugin : IPlugin
     public Plugin(IConfigurationHandlerFactory configurationHandlerFactory)
     {
         _configurationHandler =
-            configurationHandlerFactory.GetConfigurationHandler<ReservedClientsConfiguration>($"ReservedClients");
+            configurationHandlerFactory.GetConfigurationHandler<ReservedClientsConfiguration>(
+                $"ReservedClientsSettings");
     }
 
     private readonly IConfigurationHandler<ReservedClientsConfiguration> _configurationHandler;
+    public const int ConfigurationVersion = 1;
 
     public Task OnEventAsync(GameEvent gameEvent, Server server)
     {
@@ -25,31 +27,18 @@ public class Plugin : IPlugin
                 var access = true;
 
                 var clientGuid = _configurationHandler.Configuration().ReservedClients
-                    .Find(x => x.Name == gameEvent.Origin.CleanedName);
+                    .Find(x => x.Names.Contains(gameEvent.Origin.CleanedName));
 
-                Console.WriteLine("1");
-                Console.WriteLine(
-                    $"\nE-N: {gameEvent.Origin.CleanedName} - E-G: {gameEvent.Origin.GuidString}" +
-                    $"\nR-N: {clientGuid?.Name} - R-G: {clientGuid?.Guid}\nAccess: {access}\n");
-
+                Console.WriteLine($"\nE-N: {gameEvent.Origin.CleanedName} - E-G: {gameEvent.Origin.GuidString}" +
+                                  $"\nR-N: {clientGuid?.Names} - R-G: {clientGuid?.Guid}\nAccess: {access}\n");
 
                 if (clientGuid != null)
                 {
                     access = clientGuid.Guid == gameEvent.Origin.GuidString;
-
-                    Console.WriteLine("2");
-                    Console.WriteLine(
-                        $"\nE-N: {gameEvent.Origin.CleanedName} - E-G: {gameEvent.Origin.GuidString}" +
-                        $"\nR-N: {clientGuid?.Name} - R-G: {clientGuid?.Guid}\nAccess: {access}\n");
                 }
 
                 if (!access)
                 {
-                    Console.WriteLine("3");
-                    Console.WriteLine(
-                        $"\nE-N: {gameEvent.Origin.CleanedName} - E-G: {gameEvent.Origin.GuidString}" +
-                        $"\nR-N: {clientGuid?.Name} - R-G: {clientGuid?.Guid}\nAccess: {access}\n");
-
                     gameEvent.Origin.Kick(_configurationHandler.Configuration().KickMessage,
                         Utilities.IW4MAdminClient(gameEvent.Owner));
                 }
@@ -73,41 +62,43 @@ public class Plugin : IPlugin
 
         // Duplicate checking
         var duplicateNames = _configurationHandler.Configuration().ReservedClients
-            .GroupBy(x => x.Name)
+            .GroupBy(x => x.Names)
             .Where(x => x.Count() > 1)
             .Select(x => x.Key).ToList();
-        var duplicateGuid = _configurationHandler.Configuration().ReservedClients
+        var duplicateGuids = _configurationHandler.Configuration().ReservedClients
             .GroupBy(x => x.Guid)
             .Where(x => x.Count() > 1)
             .Select(x => x.Key).ToList();
 
-        if (duplicateGuid.Any() || duplicateNames.Any())
+        if (duplicateGuids.Any() || duplicateNames.Any())
         {
             if (duplicateNames.Any())
             {
-                foreach (var name in duplicateNames)
-                {
-                    Console.WriteLine($"Duplicate Name: {name}");
-                }
+                Console.WriteLine($"Duplicate Names: {string.Join(", ", duplicateNames.Select(x => x))}");
             }
 
-            if (duplicateGuid.Any())
+            if (duplicateGuids.Any())
             {
-                foreach (var guid in duplicateGuid)
-                {
-                    Console.WriteLine($"Duplicate GUID: {guid}");
-                }
+                Console.WriteLine($"Duplicate GUIDs: {string.Join(", ", duplicateGuids)}");
             }
 
             Console.WriteLine("Duplicates found!\nRemove duplicates before starting!\nExiting...");
             Environment.Exit(1);
         }
 
+        // Save new config if version is newer
+        if (_configurationHandler.Configuration().Version < ConfigurationVersion)
+        {
+            Console.WriteLine($"[{Name}] Configuration version is outdated, updating.");
+            _configurationHandler.Configuration().Version = ConfigurationVersion;
+            await _configurationHandler.Save();
+        }
+
         // Debug
         Console.WriteLine("\nListing clients...");
         foreach (var client in _configurationHandler.Configuration().ReservedClients)
         {
-            Console.WriteLine($"{client.Name}: {client.Guid}");
+            Console.WriteLine($"{client.Guid}: {string.Join(", ", client.Names)}");
         }
 
         Console.WriteLine("Listing clients end\n");
