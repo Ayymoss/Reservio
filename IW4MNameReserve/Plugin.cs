@@ -29,10 +29,7 @@ public class Plugin : IPlugin
 
                 var clientGuid = ConfigurationHandler.Configuration().ReservedClients
                     .Find(x => x.Names.Contains(gameEvent.Origin.CleanedName));
-
-                Console.WriteLine($"\nE-N: {gameEvent.Origin.CleanedName} - E-G: {gameEvent.Origin.GuidString}" +
-                                  $"\nR-N: {clientGuid?.Names} - R-G: {clientGuid?.Guid}\nAccess: {access}\n");
-
+                
                 if (clientGuid != null)
                 {
                     access = clientGuid.Guid.ToLower() == gameEvent.Origin.GuidString;
