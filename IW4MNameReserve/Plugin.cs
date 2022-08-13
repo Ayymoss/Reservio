@@ -74,15 +74,15 @@ public class Plugin : IPlugin
         {
             if (duplicateNames.Any())
             {
-                Console.WriteLine($"Duplicate Names: {string.Join(", ", duplicateNames.Select(x => x))}");
+                Console.WriteLine($"[{Name}] Duplicate Names: {string.Join(", ", duplicateNames.Select(x => x))}");
             }
 
             if (duplicateGuids.Any())
             {
-                Console.WriteLine($"Duplicate GUIDs: {string.Join(", ", duplicateGuids)}");
+                Console.WriteLine($"[{Name}] Duplicate GUIDs: {string.Join(", ", duplicateGuids)}");
             }
 
-            Console.WriteLine("Duplicates found!\nRemove duplicates before starting!\nExiting...");
+            Console.WriteLine($"[{Name}] Duplicates found!\n[{Name}] Remove duplicates before starting!\n[{Name}] Exiting...");
             Environment.Exit(1);
         }
 

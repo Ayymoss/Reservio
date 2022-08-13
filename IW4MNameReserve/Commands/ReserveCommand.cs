@@ -28,7 +28,8 @@ public class ReserveCommand : Command
 
     public override Task ExecuteAsync(GameEvent gameEvent)
     {
-        var clientGuid = Plugin.ReservedClientsList.Find(x => x.Guid.Contains(gameEvent.Target.GuidString));
+        var clientGuid = Plugin.ReservedClientsList
+            .Find(x => x.Guid.Contains(gameEvent.Target.GuidString));
 
         if (clientGuid == null)
         {
