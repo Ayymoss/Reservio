@@ -16,16 +16,21 @@ public class ReservedClientsConfiguration : IBaseConfiguration
     {
         new ReservedClientsModel
         {
+            Guid = "1995102c6e610ff7",
+            Names = new List<string> {":emp:Ayymoss", "Ayymoss", "Amos"}
+        },
+        new ReservedClientsModel
+        {
             Guid = "0001110001110001",
-            Names = new List<string> {"ExampleNameOne", "ExampleNameOneTwo"}
+            Names = new List<string> {"ExampleOtherName", "ExampleOtherName2"}
         },
         new ReservedClientsModel
         {
             Guid = "0001110001110002",
-            Names = new List<string> {"ExampleNameTwo"}
+            Names = new List<string> {"ExampleOtherName"}
         }
     };
-    
+
     public int Version { get; set; } = Plugin.ConfigurationVersion;
 
     public string Name() => "ReservedClients";

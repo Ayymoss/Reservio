@@ -11,12 +11,13 @@ public class Plugin : IPlugin
 
     public Plugin(IConfigurationHandlerFactory configurationHandlerFactory)
     {
-        _configurationHandler =
+        ConfigurationHandler =
             configurationHandlerFactory.GetConfigurationHandler<ReservedClientsConfiguration>(
-                $"ReservedClientsSettings");
+                "ReservedClientsSettings");
     }
 
-    private readonly IConfigurationHandler<ReservedClientsConfiguration> _configurationHandler;
+    public readonly IConfigurationHandler<ReservedClientsConfiguration> ConfigurationHandler;
+    public static List<ReservedClientsModel> ReservedClientsList;
     public const int ConfigurationVersion = 1;
 
     public Task OnEventAsync(GameEvent gameEvent, Server server)
@@ -26,7 +27,7 @@ public class Plugin : IPlugin
             case GameEvent.EventType.Join:
                 var access = true;
 
-                var clientGuid = _configurationHandler.Configuration().ReservedClients
+                var clientGuid = ConfigurationHandler.Configuration().ReservedClients
                     .Find(x => x.Names.Contains(gameEvent.Origin.CleanedName));
 
                 Console.WriteLine($"\nE-N: {gameEvent.Origin.CleanedName} - E-G: {gameEvent.Origin.GuidString}" +
@@ -34,12 +35,12 @@ public class Plugin : IPlugin
 
                 if (clientGuid != null)
                 {
-                    access = clientGuid.Guid == gameEvent.Origin.GuidString;
+                    access = clientGuid.Guid.ToLower() == gameEvent.Origin.GuidString;
                 }
 
                 if (!access)
                 {
-                    gameEvent.Origin.Kick(_configurationHandler.Configuration().KickMessage,
+                    gameEvent.Origin.Kick(ConfigurationHandler.Configuration().KickMessage,
                         Utilities.IW4MAdminClient(gameEvent.Owner));
                 }
 
@@ -52,21 +53,23 @@ public class Plugin : IPlugin
     public async Task OnLoadAsync(IManager manager)
     {
         // Read/Write configuration
-        await _configurationHandler.BuildAsync();
-        if (_configurationHandler.Configuration() == null)
+        await ConfigurationHandler.BuildAsync();
+        if (ConfigurationHandler.Configuration() == null)
         {
             Console.WriteLine($"[{Name}] Configuration not found, creating.");
-            _configurationHandler.Set(new ReservedClientsConfiguration());
-            await _configurationHandler.Save();
+            ConfigurationHandler.Set(new ReservedClientsConfiguration());
+            await ConfigurationHandler.Save();
         }
 
         // Duplicate checking
-        var duplicateNames = _configurationHandler.Configuration().ReservedClients
-            .GroupBy(x => x.Names)
+        var duplicateNames = ConfigurationHandler.Configuration().ReservedClients
+            .SelectMany(x => x.Names)
+            .GroupBy(x => x)
             .Where(x => x.Count() > 1)
             .Select(x => x.Key).ToList();
-        var duplicateGuids = _configurationHandler.Configuration().ReservedClients
-            .GroupBy(x => x.Guid)
+
+        var duplicateGuids = ConfigurationHandler.Configuration().ReservedClients
+            .GroupBy(x => x.Guid.ToLower())
             .Where(x => x.Count() > 1)
             .Select(x => x.Key).ToList();
 
@@ -87,30 +90,26 @@ public class Plugin : IPlugin
         }
 
         // Save new config if version is newer
-        if (_configurationHandler.Configuration().Version < ConfigurationVersion)
+        if (ConfigurationHandler.Configuration().Version < ConfigurationVersion)
         {
             Console.WriteLine($"[{Name}] Configuration version is outdated, updating.");
-            _configurationHandler.Configuration().Version = ConfigurationVersion;
-            await _configurationHandler.Save();
+            ConfigurationHandler.Configuration().Version = ConfigurationVersion;
+            await ConfigurationHandler.Save();
         }
 
-        // Debug
-        Console.WriteLine("\nListing clients...");
-        foreach (var client in _configurationHandler.Configuration().ReservedClients)
-        {
-            Console.WriteLine($"{client.Guid}: {string.Join(", ", client.Names)}");
-        }
-
-        Console.WriteLine("Listing clients end\n");
-
+        ReservedClientsList = ConfigurationHandler.Configuration().ReservedClients;
+        
         // Load confirmation
         Console.WriteLine($"[{Name}] v{Version} by {Author} loaded");
     }
 
-    public Task OnUnloadAsync()
+    public async Task OnUnloadAsync()
     {
+        // Write back new entries
+        ConfigurationHandler.Configuration().ReservedClients = ReservedClientsList;
+        await ConfigurationHandler.Save();
+        
         Console.WriteLine($"[{Name}] unloaded");
-        return Task.CompletedTask;
     }
 
     public Task OnTickAsync(Server server)
