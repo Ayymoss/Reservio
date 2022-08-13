@@ -12,10 +12,10 @@ public class Plugin : IPlugin
     public Plugin(IConfigurationHandlerFactory configurationHandlerFactory)
     {
         _configurationHandler =
-            configurationHandlerFactory.GetConfigurationHandler<ReservedClientsListModel>($"ReservedClients");
+            configurationHandlerFactory.GetConfigurationHandler<ReservedClientsConfiguration>($"ReservedClients");
     }
 
-    private readonly IConfigurationHandler<ReservedClientsListModel> _configurationHandler;
+    private readonly IConfigurationHandler<ReservedClientsConfiguration> _configurationHandler;
 
     public Task OnEventAsync(GameEvent gameEvent, Server server)
     {
@@ -29,7 +29,8 @@ public class Plugin : IPlugin
 
                 Console.WriteLine("1");
                 Console.WriteLine(
-                    $"\nE-N: {gameEvent.Origin.CleanedName} - E-G: {gameEvent.Origin.GuidString}\nR-N: {clientGuid?.Name} R-G: {clientGuid?.Guid}\nAccess: {access}\n");
+                    $"\nE-N: {gameEvent.Origin.CleanedName} - E-G: {gameEvent.Origin.GuidString}" +
+                    $"\nR-N: {clientGuid?.Name} - R-G: {clientGuid?.Guid}\nAccess: {access}\n");
 
 
                 if (clientGuid != null)
@@ -38,16 +39,18 @@ public class Plugin : IPlugin
 
                     Console.WriteLine("2");
                     Console.WriteLine(
-                        $"\nE-N: {gameEvent.Origin.CleanedName} - E-G: {gameEvent.Origin.GuidString}\nR-N: {clientGuid?.Name} R-G: {clientGuid?.Guid}\nAccess: {access}\n");
+                        $"\nE-N: {gameEvent.Origin.CleanedName} - E-G: {gameEvent.Origin.GuidString}" +
+                        $"\nR-N: {clientGuid?.Name} - R-G: {clientGuid?.Guid}\nAccess: {access}\n");
                 }
 
                 if (!access)
                 {
                     Console.WriteLine("3");
                     Console.WriteLine(
-                        $"\nE-N: {gameEvent.Origin.CleanedName} - E-G: {gameEvent.Origin.GuidString}\nR-N: {clientGuid?.Name} - R-G: {clientGuid?.Guid}\nAccess: {access}\n");
+                        $"\nE-N: {gameEvent.Origin.CleanedName} - E-G: {gameEvent.Origin.GuidString}" +
+                        $"\nR-N: {clientGuid?.Name} - R-G: {clientGuid?.Guid}\nAccess: {access}\n");
 
-                    gameEvent.Origin.Kick("Name is reserved. Please change your name.",
+                    gameEvent.Origin.Kick(_configurationHandler.Configuration().KickMessage,
                         Utilities.IW4MAdminClient(gameEvent.Owner));
                 }
 
@@ -64,7 +67,7 @@ public class Plugin : IPlugin
         if (_configurationHandler.Configuration() == null)
         {
             Console.WriteLine($"[{Name}] Configuration not found, creating.");
-            _configurationHandler.Set(new ReservedClientsListModel());
+            _configurationHandler.Set(new ReservedClientsConfiguration());
             await _configurationHandler.Save();
         }
 
@@ -77,7 +80,7 @@ public class Plugin : IPlugin
             .GroupBy(x => x.Guid)
             .Where(x => x.Count() > 1)
             .Select(x => x.Key).ToList();
-        
+
         if (duplicateGuid.Any() || duplicateNames.Any())
         {
             if (duplicateNames.Any())

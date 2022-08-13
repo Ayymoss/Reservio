@@ -8,7 +8,7 @@ public class ReservedClientsModel
     public string Name { get; set; }
 }
 
-public class ReservedClientsListModel : IBaseConfiguration
+public class ReservedClientsConfiguration : IBaseConfiguration
 {
     public List<ReservedClientsModel> ReservedClients { get; } = new()
     {
@@ -24,7 +24,9 @@ public class ReservedClientsListModel : IBaseConfiguration
         }
     };
 
+    public string KickMessage { get; } = "Name reserved. Change your name";
+
     public string Name() => "ReservedClients";
 
-    public IBaseConfiguration Generate() => new ReservedClientsListModel();
+    public IBaseConfiguration Generate() => new ReservedClientsConfiguration();
 }
