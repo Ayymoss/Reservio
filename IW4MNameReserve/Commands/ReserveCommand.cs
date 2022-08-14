@@ -36,7 +36,7 @@ public class ReserveCommand : Command
             Plugin.ReservedClientsList.Add(new ReservedClientsModel
             {
                 Guid = gameEvent.Target.GuidString,
-                Names = new List<string> {gameEvent.Target.CleanedName}
+                Names = new List<string> {gameEvent.Target.CleanedName.ToLower()}
             });
             gameEvent.Origin.Tell($"Reserved: {gameEvent.Target.CleanedName}");
         }
@@ -44,11 +44,11 @@ public class ReserveCommand : Command
         {
             if (!Plugin.ReservedClientsList
                     .First(x => x.Guid == gameEvent.Target.GuidString).Names
-                    .Contains(gameEvent.Target.CleanedName))
+                    .Contains(gameEvent.Target.CleanedName.ToLower()))
             {
                 Plugin.ReservedClientsList
                     .First(x => x.Guid == gameEvent.Target.GuidString).Names
-                    .Add(gameEvent.Target.CleanedName);
+                    .Add(gameEvent.Target.CleanedName.ToLower());
                 gameEvent.Origin.Tell($"Updated reservation for: {gameEvent.Target.CleanedName}");
             }
             else

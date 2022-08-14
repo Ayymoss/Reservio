@@ -28,7 +28,7 @@ public class Plugin : IPlugin
                 var access = true;
 
                 var clientGuid = ConfigurationHandler.Configuration().ReservedClients
-                    .Find(x => x.Names.Contains(gameEvent.Origin.CleanedName));
+                    .Find(client => client.Names.Contains(gameEvent.Origin.CleanedName.ToLower()));
                 
                 if (clientGuid != null)
                 {
@@ -60,15 +60,15 @@ public class Plugin : IPlugin
 
         // Duplicate checking
         var duplicateNames = ConfigurationHandler.Configuration().ReservedClients
-            .SelectMany(x => x.Names)
-            .GroupBy(x => x)
-            .Where(x => x.Count() > 1)
-            .Select(x => x.Key).ToList();
+            .SelectMany(client => client.Names)
+            .GroupBy(str => str)
+            .Where(grouping => grouping.Count() > 1)
+            .Select(grouping => grouping.Key).ToList();
 
         var duplicateGuids = ConfigurationHandler.Configuration().ReservedClients
-            .GroupBy(x => x.Guid.ToLower())
-            .Where(x => x.Count() > 1)
-            .Select(x => x.Key).ToList();
+            .GroupBy(client => client.Guid.ToLower())
+            .Where(grouping => grouping.Count() > 1)
+            .Select(grouping => grouping.Key).ToList();
 
         if (duplicateGuids.Any() || duplicateNames.Any())
         {
@@ -82,7 +82,20 @@ public class Plugin : IPlugin
                 Console.WriteLine($"[{Name}] Duplicate GUIDs: {string.Join(", ", duplicateGuids)}");
             }
 
-            Console.WriteLine($"[{Name}] Duplicates found!\n[{Name}] Remove duplicates before starting!\n[{Name}] Exiting...");
+            Console.WriteLine($"[{Name}] Remove duplicates before starting!\n[{Name}] Exiting...");
+            Environment.Exit(1);
+        }
+
+        // Check for capitalisation
+        var capitalisedNames = ConfigurationHandler.Configuration().ReservedClients
+            .SelectMany(client => client.Names)
+            .Where(str => str.Any(char.IsUpper))
+            .ToList();
+        
+        if (capitalisedNames.Any())
+        {
+            Console.WriteLine($"[{Name}] Capitalised names found: {string.Join(", ", capitalisedNames)}");
+            Console.WriteLine($"[{Name}] Remove capitalisation before starting!\n[{Name}] Exiting...");
             Environment.Exit(1);
         }
 
