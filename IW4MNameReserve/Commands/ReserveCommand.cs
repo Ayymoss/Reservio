@@ -13,7 +13,7 @@ public class ReserveCommand : Command
     {
         Name = "reserve";
         Description = "reserve the target players name";
-        Alias = "res";
+        Alias = "rsrv";
         Permission = EFClient.Permission.SeniorAdmin;
         RequiresTarget = true;
         Arguments = new[]

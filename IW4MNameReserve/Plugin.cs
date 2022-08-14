@@ -6,7 +6,7 @@ namespace IW4MNameReserve;
 public class Plugin : IPlugin
 {
     public string Name => "Name Reserve";
-    public float Version => 20220813f;
+    public float Version => 20220814f;
     public string Author => "Amos";
 
     public Plugin(IConfigurationHandlerFactory configurationHandlerFactory)
