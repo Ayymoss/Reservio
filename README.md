@@ -8,7 +8,7 @@ To reserve a new name/client see below command, you can update or add a new clie
 
 ## Commands:
 ```
-!reserve (!res) <target> 
+!reserve (!rsrv) <target> 
 ```
 
 Note, the configuration will only save/write when you `!quit` out of IW4MAdmin, so don't modify the config whilst IW4MAdmin is open else you will lose the changes.
