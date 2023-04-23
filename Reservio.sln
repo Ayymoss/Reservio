@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IW4MNameReserve", "IW4MNameReserve\IW4MNameReserve.csproj", "{810E01BC-A680-49D3-A140-A1179EBAB3B1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reservio", "Reservio\Reservio.csproj", "{810E01BC-A680-49D3-A140-A1179EBAB3B1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
