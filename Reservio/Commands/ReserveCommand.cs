@@ -62,7 +62,6 @@ public class ReserveCommand : Command
         }
 
         _configurationHandler.Set();
-
         return Task.CompletedTask;
     }
 }
