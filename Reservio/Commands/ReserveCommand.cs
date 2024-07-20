@@ -23,14 +23,14 @@ public class ReserveCommand : Command
         Alias = "rsrv";
         Permission = EFClient.Permission.SeniorAdmin;
         RequiresTarget = true;
-        Arguments = new[]
-        {
+        Arguments =
+        [
             new CommandArgument
             {
                 Name = "player",
                 Required = true
             }
-        };
+        ];
     }
 
     public override Task ExecuteAsync(GameEvent gameEvent)
@@ -44,7 +44,7 @@ public class ReserveCommand : Command
             {
                 Guid = gameEvent.Target.GuidString,
                 Game = gameEvent.Target.GameName,
-                Names = new List<string>()
+                Names = []
             };
             _reservedConfig.ReservedClients.Add(clientGuid);
         }

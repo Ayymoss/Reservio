@@ -10,7 +10,7 @@ public class Plugin : IPluginV2
 {
     private readonly ReservedClientsConfiguration _config;
     public string Name => "Reservio";
-    public string Version => "2023-08-11";
+    public string Version => "2024-07-21";
     public string Author => "Amos";
 
     public Plugin(ReservedClientsConfiguration config)
@@ -33,7 +33,7 @@ public class Plugin : IPluginV2
 
         if (clientGuid is null) return Task.CompletedTask;
         if (clientGuid.Game != clientEvent.Client.GameName) return Task.CompletedTask;
-        if (clientGuid.Guid.ToLower() != clientEvent.Client.GuidString)
+        if (!clientGuid.Guid.Equals(clientEvent.Client.GuidString, StringComparison.CurrentCultureIgnoreCase))
             clientEvent.Client.Kick(_config.KickMessage, Utilities.IW4MAdminClient(clientEvent.Client.CurrentServer));
 
         return Task.CompletedTask;
@@ -45,7 +45,7 @@ public class Plugin : IPluginV2
         var duplicateGuids = GetDuplicateGuids();
         var capitalisedNames = GetCapitalisedNames();
 
-        if (duplicateGuids.Any() || duplicateNames.Any() || capitalisedNames.Any())
+        if (duplicateGuids.Count is not 0 || duplicateNames.Count is not 0 || capitalisedNames.Count is not 0)
         {
             LogConfigIssues(duplicateNames, duplicateGuids, capitalisedNames);
             Console.ReadKey();
@@ -75,9 +75,9 @@ public class Plugin : IPluginV2
     private void LogConfigIssues(IReadOnlyCollection<string> duplicateNames, IReadOnlyCollection<string> duplicateGuids,
         IReadOnlyCollection<string> capitalisedNames)
     {
-        if (duplicateNames.Any()) Console.WriteLine($"[{Name}] Duplicate Names: {string.Join(", ", duplicateNames)}");
-        if (duplicateGuids.Any()) Console.WriteLine($"[{Name}] Duplicate GUIDs: {string.Join(", ", duplicateGuids)}");
-        if (capitalisedNames.Any()) Console.WriteLine($"[{Name}] Capitalised names found: {string.Join(", ", capitalisedNames)}");
+        if (duplicateNames.Count is not 0) Console.WriteLine($"[{Name}] Duplicate Names: {string.Join(", ", duplicateNames)}");
+        if (duplicateGuids.Count is not 0) Console.WriteLine($"[{Name}] Duplicate GUIDs: {string.Join(", ", duplicateGuids)}");
+        if (capitalisedNames.Count is not 0) Console.WriteLine($"[{Name}] Capitalised names found: {string.Join(", ", capitalisedNames)}");
 
         Console.WriteLine($"[{Name}] Resolve issues before starting!\n[{Name}] Press any key to exit...");
     }
